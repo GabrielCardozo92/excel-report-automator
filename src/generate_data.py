@@ -2,10 +2,12 @@ import random
 import pandas as pd
 from faker import Faker
 from pathlib import Path
+import numpy as np
 
 fake = Faker()
 fake.seed_instance(42)
 random.seed(42)
+np.random.seed(42)
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 PRODUCTS = ["Laptop", "Smartphone", "Tablet", "Headphones", "Smartwatch", "Camera", "Printer", "Monitor", "Keyboard"]
@@ -36,7 +38,7 @@ def make_messy(df):
     """Deliberately corrupt clean data to simulate real-world files."""
     df = df.copy()
     df["Date"] = df["Date"].apply(lambda x: x.strftime(random.choice(["%Y-%m-%d", "%d/%m/%Y", "%b %d, %Y"])))
-    df["Price"] = df["Price"].apply(lambda x: random.choice([f"${x:,.2f}", f"{x:.2f}", f"USD {x:.0f}"]))
+    df["Price"] = df["Price"].apply(lambda x: random.choice([f"${x:,.2f}", f"{x:.2f}", f"USD {x:.2f}"]))
     df["Product"] = df["Product"].apply(lambda x: random.choice([x.lower(), x.upper(), x.title(), f" {x} ", f"{x}  "]))
     bad_rows = df.sample(n=25).index
     df.loc[bad_rows, "Total"] = df.loc[bad_rows, "Total"].apply(lambda x: round(x * random.uniform(0.5, 1.5), 2))
