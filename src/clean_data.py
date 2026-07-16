@@ -15,10 +15,16 @@ def load_data():
     
 
 def clean_dates(df):
-    """Standardize the date format to YYYY-MM-DD."""
+    """Parse dates from 3 known formats."""
     df = df.copy()
-    df["Date"] = pd.to_datetime(df["Date"], format="mixed", dayfirst=True)
-    print(f"[dates] Standardized date format for {len(df)} rows")
+    raw = df["Date"]
+    parsed = pd.to_datetime(raw, format="%d/%m/%Y", errors="coerce")
+    parsed = parsed.fillna(pd.to_datetime(raw, format="%Y-%m-%d", errors="coerce"))
+    parsed = parsed.fillna(pd.to_datetime(raw, format="%b %d, %Y", errors="coerce"))
+    if parsed.isna().any():
+        raise ValueError(f"{int(parsed.isna().sum())} dates did not match any known format")
+    df["Date"] = parsed
+    print(f"[dates] Parsed {len(df)} dates from 3 known formats")
     return df
 
 def clean_prices(df):
